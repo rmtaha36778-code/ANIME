@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MT7 Anime Hub — 100+ Anime List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(135deg, #039741, #6d0505); font-family: Inter, system-ui; }
+    .anime-card { transition: transform .25s, box-shadow .25s; }
+    .anime-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,.6); }
+    nav a { padding: .5rem 1rem; border-radius:.5rem; font-weight:600; }
+    nav a:hover { background:#222; }
+  </style>
+</head>
+<body class="text-white min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-black/40 backdrop-blur-sm sticky top-0 z-50 p-4 flex justify-center gap-4">
+    <a href="index.html">🏠 Home</a>
+    <a href="anime.html" class="text-pink-400">📺 Anime List</a>
+    <a href="about.html">ℹ️ About</a>
+    <a href="contact.html">📬 Contact</a>
+  </nav>
+
+  <!-- Header -->
+  <header class="p-8 text-center">
+    <h1 class="text-4xl font-extrabold text-pink-400">MT7 Anime Library</h1>
+    <p class="text-gray-200">Browse 100+ popular anime — posters + quick links to HiAnime</p>
+  </header>
+
+  <!-- Controls -->
+  <section class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-3 p-4">
+    <input id="search" type="text" placeholder="🔍 Search anime (e.g., Naruto, Demon Slayer)…" class="w-full md:flex-1 p-3 rounded-lg text-black" />
+    <select id="sort" class="w-full md:w-auto p-3 rounded-lg text-black">
+      <option value="az">Sort: A → Z</option>
+      <option value="za">Sort: Z → A</option>
+    </select>
+    <label class="bg-indigo-600 hover:bg-indigo-700 px-4 py-3 rounded-lg font-semibold cursor-pointer">
+      📤 Upload Video
+      <input id="upload" type="file" accept="video/*" class="hidden" />
+    </label>
+  </section>
+
+  <!-- Grid -->
+  <main id="anime-list" class="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 p-6"></main>
+  <p id="no-results" class="text-center text-gray-300 hidden">❌ No results found.</p>
+
+  <footer class="text-center text-gray-400 p-6">© 2025 MT7 Anime Hub • Posters from Wikipedia</footer>
+
+  <script>
+    // 100+ anime (name, img, link). Images are mostly from Wikipedia (public).
+    const animes = [
+      // Demon Slayer (series & arcs)
+      { name: "Demon Slayer: Kimetsu no Yaiba — Season 1", img: "https://upload.wikimedia.org/wikipedia/en/1/1a/Demon_Slayer_Season_1.jpg", link: "https://hianime.to/watch/demon-slayer-kimetsu-no-yaiba-1893" },
+      { name: "Demon Slayer: Mugen Train Arc", img: "https://upload.wikimedia.org/wikipedia/en/5/5c/Demon_Slayer_Mugen_Train.jpg", link: "https://hianime.to/watch/demon-slayer-kimetsu-no-yaiba-mugen-train-arc-1831" },
+      { name: "Demon Slayer: Entertainment District Arc", img: "https://upload.wikimedia.org/wikipedia/en/e/e0/Demon_Slayer_Entertainment_District.jpg", link: "https://hianime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc-1842" },
+      { name: "Demon Slayer: Swordsmith Village Arc", img: "https://upload.wikimedia.org/wikipedia/en/2/2c/Demon_Slayer_Swordsmith_Village.jpg", link: "https://hianime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc-1830" },
+      { name: "Demon Slayer: Hashira Training Arc", img: "https://upload.wikimedia.org/wikipedia/en/6/6a/Demon_Slayer_Hashira_Training.jpg", link: "https://hianime.to/watch/demon-slayer-kimetsu-no-yaiba-hashira-training-arc-1884" },
+
+      // Big shounen hitters
+      { name: "One Piece", img: "https://upload.wikimedia.org/wikipedia/en/6/65/One_Piece_Logo.png", link: "https://hianime.to/watch/one-piece-100" },
+      { name: "Naruto", img: "https://upload.wikimedia.org/wikipedia/en/9/94/NarutoCoverTankobon1.jpg", link: "https://hianime.to/watch/naruto-20" },
+      { name: "Naruto: Shippuden", img: "https://upload.wikimedia.org/wikipedia/en/1/1b/Naruto_Shipp%C5%ABden.png", link: "https://hianime.to/watch/naruto-shippuden-322" },
+      { name: "Boruto: Naruto Next Generations", img: "https://upload.wikimedia.org/wikipedia/en/6/6b/Boruto_Volume_1_Cover.jpg", link: "https://hianime.to/watch/boruto-naruto-next-generations-63" },
+      { name: "Attack on Titan", img: "https://upload.wikimedia.org/wikipedia/en/7/70/Shingeki_no_Kyojin_manga_volume_1.jpg", link: "https://hianime.to/watch/attack-on-titan-112" },
+      { name: "Bleach", img: "https://upload.wikimedia.org/wikipedia/en/7/72/Bleachanime.png", link: "https://hianime.to/watch/bleach-249" },
+      { name: "Bleach: Thousand-Year Blood War", img: "https://upload.wikimedia.org/wikipedia/en/7/7b/Bleach_TYBW_Anime_Key_Visual.jpg", link: "https://hianime.to/watch/bleach-thousand-year-blood-war-18484" },
+      { name: "Dragon Ball Z", img: "https://upload.wikimedia.org/wikipedia/en/3/3e/Dragon_Ball_Z_TV_series_logo.png", link: "https://hianime.to/watch/dragon-ball-z-78" },
+      { name: "Dragon Ball Super", img: "https://upload.wikimedia.org/wikipedia/en/5/50/Dragon_Ball_Super_Key_visual.png", link: "https://hianime.to/watch/dragon-ball-super-1899" },
+      { name: "Hunter x Hunter (2011)", img: "https://upload.wikimedia.org/wikipedia/en/2/27/Hunter_x_Hunter_cover_-_vol1.jpg", link: "https://hianime.to/watch/hunter-x-hunter-2" },
+      { name: "Yu Yu Hakusho", img: "https://upload.wikimedia.org/wikipedia/en/f/f1/YuYuHakusho_Volume_1.jpg", link: "https://hianime.to/watch/yu-yu-hakusho-110" },
+
+      // Modern hits
+      { name: "Jujutsu Kaisen", img: "https://upload.wikimedia.org/wikipedia/en/4/46/Jujutsu_kaisen.jpg", link: "https://hianime.to/watch/jujutsu-kaisen-40791" },
+      { name: "Jujutsu Kaisen Season 2", img: "https://upload.wikimedia.org/wikipedia/en/8/8a/Jujutsu_Kaisen_Season_2_key_visual.jpg", link: "https://hianime.to/watch/jujutsu-kaisen-2nd-season-18369" },
+      { name: "Chainsaw Man", img: "https://upload.wikimedia.org/wikipedia/en/e/e8/Chainsaw_Man_volume_1_cover.jpg", link: "https://hianime.to/watch/chainsaw-man-17535" },
+      { name: "Spy x Family", img: "https://upload.wikimedia.org/wikipedia/en/e/ed/Spy_x_Family_volume_1_cover.jpg", link: "https://hianime.to/watch/spy-x-family-1686" },
+      { name: "My Hero Academia", img: "https://upload.wikimedia.org/wikipedia/en/5/53/Boku_no_Hero_Academia_Volume_1.png", link: "https://hianime.to/watch/my-hero-academia-486" },
+      { name: "One Punch Man", img: "https://upload.wikimedia.org/wikipedia/en/0/04/One-Punch_Man.jpg", link: "https://hianime.to/watch/one-punch-man-144" },
+      { name: "Mob Psycho 100", img: "https://upload.wikimedia.org/wikipedia/en/4/4a/Mob_Psycho_100_cover.png", link: "https://hianime.to/watch/mob-psycho-100-167" },
+      { name: "Blue Lock", img: "https://upload.wikimedia.org/wikipedia/en/4/40/Blue_Lock_Volume_1.jpg", link: "https://hianime.to/watch/blue-lock-17975" },
+      { name: "Dr. Stone", img: "https://upload.wikimedia.org/wikipedia/en/8/80/DrStoneCover.jpg", link: "https://hianime.to/watch/dr-stone-155" },
+      { name: "Mashle: Magic and Muscles", img: "https://upload.wikimedia.org/wikipedia/en/7/7b/Mashle_volume_1.jpg", link: "https://hianime.to/watch/mashle-magic-and-muscles-18422" },
+      { name: "Solo Leveling", img: "https://upload.wikimedia.org/wikipedia/en/7/7d/Solo_Leveling_manhwa_cover.jpg", link: "https://hianime.to/watch/solo-leveling-18751" },
+
+      // Critically acclaimed
+      { name: "Fullmetal Alchemist: Brotherhood", img: "https://upload.wikimedia.org/wikipedia/en/0/03/Fullmetal_Alchemist_Brotherhood_box.png", link: "https://hianime.to/watch/fullmetal-alchemist-brotherhood-121" },
+      { name: "Steins;Gate", img: "https://upload.wikimedia.org/wikipedia/en/2/2d/Steins%3BGate_cover.jpg", link: "https://hianime.to/watch/steinsgate-174" },
+      { name: "Code Geass: Lelouch of the Rebellion", img: "https://upload.wikimedia.org/wikipedia/en/f/f7/Code_Geass.jpg", link: "https://hianime.to/watch/code-geass-lelouch-of-the-rebellion-157" },
+      { name: "Neon Genesis Evangelion", img: "https://upload.wikimedia.org/wikipedia/en/6/69/NeonGenesisEvangelion.jpg", link: "https://hianime.to/watch/neon-genesis-evangelion-123" },
+      { name: "Cowboy Bebop", img: "https://upload.wikimedia.org/wikipedia/en/0/0b/Cowboy_Bebop_boxset.jpg", link: "https://hianime.to/watch/cowboy-bebop-1" },
+      { name: "Samurai Champloo", img: "https://upload.wikimedia.org/wikipedia/en/2/2e/Samurai_Champloo_key_visual.jpg", link: "https://hianime.to/watch/samurai-champloo-45" },
+      { name: "Gurren Lagann", img: "https://upload.wikimedia.org/wikipedia/en/3/32/Gurren_Lagann_DVD_1.jpg", link: "https://hianime.to/watch/gurren-lagann-200" },
+      { name: "Violet Evergarden", img: "https://upload.wikimedia.org/wikipedia/en/2/2b/Violet_Evergarden_key_visual.jpg", link: "https://hianime.to/watch/violet-evergarden-1086" },
+      { name: "Made in Abyss", img: "https://upload.wikimedia.org/wikipedia/en/9/9b/Made_in_Abyss_keyvisual.jpg", link: "https://hianime.to/watch/made-in-abyss-958" },
+
+      // Romance / drama / slice of life
+      { name: "Your Lie in April", img: "https://upload.wikimedia.org/wikipedia/en/1/15/Your_Lie_in_April.jpg", link: "https://hianime.to/watch/your-lie-in-april-208" },
+      { name: "Clannad", img: "https://upload.wikimedia.org/wikipedia/en/5/5b/Clannad_vol1.jpg", link: "https://hianime.to/watch/clannad-239" },
+      { name: "Clannad: After Story", img: "https://upload.wikimedia.org/wikipedia/en/2/22/Clannad_after_story_cover.jpg", link: "https://hianime.to/watch/clannad-after-story-240" },
+      { name: "Toradora!", img: "https://upload.wikimedia.org/wikipedia/en/5/55/Toradora_v1.jpg", link: "https://hianime.to/watch/toradora-150" },
+      { name: "Anohana: The Flower We Saw That Day", img: "https://upload.wikimedia.org/wikipedia/en/2/2f/Anohana_visual.jpg", link: "https://hianime.to/watch/anohana-the-flower-we-saw-that-day-221" },
+      { name: "Kaguya-sama: Love Is War", img: "https://upload.wikimedia.org/wikipedia/en/8/8d/Kaguya-sama_kei%21.png", link: "https://hianime.to/watch/kaguya-sama-love-is-war-1763" },
+      { name: "Fruits Basket (2019)", img: "https://upload.wikimedia.org/wikipedia/en/1/12/Fruits_Basket_2019_cover.png", link: "https://hianime.to/watch/fruits-basket-211" },
+      { name: "K-On!", img: "https://upload.wikimedia.org/wikipedia/en/6/60/K-On%21_promo.jpg", link: "https://hianime.to/watch/k-on-342" },
+      { name: "Your Name", img: "https://upload.wikimedia.org/wikipedia/en/0/0b/Your_Name_poster.jpg", link: "https://hianime.to/watch/your-name-2016" },
+      { name: "A Silent Voice", img: "https://upload.wikimedia.org/wikipedia/en/8/8d/Koe_no_Katachi_poster.jpg", link: "https://hianime.to/watch/a-silent-voice-382" },
+      { name: "Kimi ni Todoke", img: "https://upload.wikimedia.org/wikipedia/en/3/30/Kimi_ni_Todoke_v1.jpg", link: "https://hianime.to/watch/kimi-ni-todoke-402" },
+      { name: "Horimiya", img: "https://upload.wikimedia.org/wikipedia/en/8/8a/Horimiya_volume_1.jpg", link: "https://hianime.to/watch/horimiya-15849" },
+
+      // Sports
+      { name: "Haikyuu!!", img: "https://upload.wikimedia.org/wikipedia/en/3/3f/Haikyuu%21_Vol_1.jpg", link: "https://hianime.to/watch/haikyuu-166" },
+      { name: "Kuroko's Basketball", img: "https://upload.wikimedia.org/wikipedia/en/6/6b/Kuroko%27s_Basket_cover.jpg", link: "https://hianime.to/watch/kuroko-no-basuke-103" },
+      { name: "Slam Dunk", img: "https://upload.wikimedia.org/wikipedia/en/7/78/Slam_Dunk_cover.jpg", link: "https://hianime.to/watch/slam-dunk-160" },
+      { name: "Yuri!!! on Ice", img: "https://upload.wikimedia.org/wikipedia/en/9/9f/Yuri_on_Ice.jpg", link: "https://hianime.to/watch/yuri-on-ice-1139" },
+      { name: "Blue Lock (Season 1)", img: "https://upload.wikimedia.org/wikipedia/en/4/40/Blue_Lock_Volume_1.jpg", link: "https://hianime.to/watch/blue-lock-17975" },
+      { name: "Ace of Diamond", img: "https://upload.wikimedia.org/wikipedia/en/8/8d/Ace_of_Diamond_manga.jpg", link: "https://hianime.to/watch/ace-of-diamond-181" },
+      { name: "Initial D", img: "https://upload.wikimedia.org/wikipedia/en/0/0c/Initial_D_Volume_1.jpg", link: "https://hianime.to/watch/initial-d-5" },
+      { name: "Hajime no Ippo", img: "https://upload.wikimedia.org/wikipedia/en/4/4e/Hajime_no_Ippo_cover.jpg", link: "https://hianime.to/watch/hajime-no-ippo-10" },
+      { name: "Baki the Grappler", img: "https://upload.wikimedia.org/wikipedia/en/2/2f/Baki_the_Grappler_cover.jpg", link: "https://hianime.to/watch/baki-the-grappler-8" },
+      { name: "Yowamushi Pedal", img: "https://upload.wikimedia.org/wikipedia/en/3/3b/Yowamushi_Pedal_cover.jpg", link: "https://hianime.to/watch/yowamushi-pedal-6" },
+
+      // Action / fantasy
+      { name: "Black Clover", img: "https://upload.wikimedia.org/wikipedia/en/0/0c/Black_Clover_Volume_1.png", link: "https://hianime.to/watch/black-clover-2404" },
+      { name: "The Seven Deadly Sins", img: "https://upload.wikimedia.org/wikipedia/en/2/23/The_Seven_Deadly_Sins_cover.jpg", link: "https://hianime.to/watch/the-seven-deadly-sins-222" },
+      { name: "Sword Art Online", img: "https://upload.wikimedia.org/wikipedia/en/a/ac/Sword_Art_Online_light_novel_volume_1.png", link: "https://hianime.to/watch/sword-art-online-1818" },
+      { name: "No Game No Life", img: "https://upload.wikimedia.org/wikipedia/en/8/8f/NoGameNoLife.jpg", link: "https://hianime.to/watch/no-game-no-life-296" },
+      { name: "Noragami", img: "https://upload.wikimedia.org/wikipedia/en/8/8c/Noragami_volume1.jpg", link: "https://hianime.to/watch/noragami-116" },
+      { name: "KonoSuba", img: "https://upload.wikimedia.org/wikipedia/en/6/68/Konosuba_cover.jpg", link: "https://hianime.to/watch/konosuba-gods-blessing-on-this-wonderful-world-260" },
+      { name: "Gintama", img: "https://upload.wikimedia.org/wikipedia/en/0/08/Gintama_visual.jpg", link: "https://hianime.to/watch/gintama-4" },
+      { name: "Fairy Tail", img: "https://upload.wikimedia.org/wikipedia/en/5/5d/FairyTail-Volume1Cover.jpg", link: "https://hianime.to/watch/fairy-tail-1672" },
+      { name: "Soul Eater", img: "https://upload.wikimedia.org/wikipedia/en/9/98/Soul_Eater_Volume_1.jpg", link: "https://hianime.to/watch/soul-eater-43" },
+      { name: "Magi: The Labyrinth of Magic", img: "https://upload.wikimedia.org/wikipedia/en/0/02/Magi_Labyrinth_of_Magic_volume_1_cover.jpg", link: "https://hianime.to/watch/magi-176" },
+      { name: "Akame ga Kill!", img: "https://upload.wikimedia.org/wikipedia/en/7/74/Akame_ga_Kill%21%2C_volume_1.jpg", link: "https://hianime.to/watch/akame-ga-kill-10" },
+      { name: "Fire Force", img: "https://upload.wikimedia.org/wikipedia/en/0/06/Fire_Force_volume_1_cover.jpg", link: "https://hianime.to/watch/fire-force-295" },
+      { name: "Re:Zero − Starting Life in Another World", img: "https://upload.wikimedia.org/wikipedia/en/1/1b/Re_Zero_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/rezero-starting-life-in-another-world-395" },
+      { name: "That Time I Got Reincarnated as a Slime", img: "https://upload.wikimedia.org/wikipedia/en/5/52/That_time_i_got_reincarnated_as_a_slime.jpg", link: "https://hianime.to/watch/that-time-i-got-reincarnated-as-a-slime-1809" },
+      { name: "The Rising of the Shield Hero", img: "https://upload.wikimedia.org/wikipedia/en/8/8e/Shield_Hero_Key_Visual.jpg", link: "https://hianime.to/watch/the-rising-of-the-shield-hero-137" },
+      { name: "Mushoku Tensei: Jobless Reincarnation", img: "https://upload.wikimedia.org/wikipedia/en/5/58/Mushoku_Tensei_key_visual.jpg", link: "https://hianime.to/watch/mushoku-tensei-jobless-reincarnation-18726" },
+      { name: "Overlord", img: "https://upload.wikimedia.org/wikipedia/en/8/8d/Overlord_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/overlord-130" },
+      { name: "Saga of Tanya the Evil", img: "https://upload.wikimedia.org/wikipedia/en/6/6c/Youjo_Senki.jpg", link: "https://hianime.to/watch/the-saga-of-tanya-the-evil-2203" },
+      { name: "Goblin Slayer", img: "https://upload.wikimedia.org/wikipedia/en/6/68/Goblin_Slayer_key_visual.jpg", link: "https://hianime.to/watch/goblin-slayer-1329" },
+      { name: "Vinland Saga", img: "https://upload.wikimedia.org/wikipedia/en/6/60/Vinland_Saga_visual.jpg", link: "https://hianime.to/watch/vinland-saga-1033" },
+      { name: "Black Lagoon", img: "https://upload.wikimedia.org/wikipedia/en/6/6b/Black_Lagoon_cover.jpg", link: "https://hianime.to/watch/black-lagoon-47" },
+      { name: "Trigun", img: "https://upload.wikimedia.org/wikipedia/en/f/f7/Trigun_Volume_1.jpg", link: "https://hianime.to/watch/trigun-16" },
+
+      // Mystery / thriller / psychological
+      { name: "Death Note", img: "https://upload.wikimedia.org/wikipedia/en/6/6f/Death_Note_Vol_1.jpg", link: "https://hianime.to/watch/death-note-60" },
+      { name: "Psycho-Pass", img: "https://upload.wikimedia.org/wikipedia/en/9/98/Psycho-Pass_key_visual.jpg", link: "https://hianime.to/watch/psycho-pass-77" },
+      { name: "Monster", img: "https://upload.wikimedia.org/wikipedia/en/3/3c/Monster_manga_cover.jpg", link: "https://hianime.to/watch/monster-13" },
+      { name: "Parasyte: The Maxim", img: "https://upload.wikimedia.org/wikipedia/en/b/b6/Parasyte_boxart.jpg", link: "https://hianime.to/watch/parasyte-the-maxim-152" },
+      { name: "Erased", img: "https://upload.wikimedia.org/wikipedia/en/5/53/Erased_visual.png", link: "https://hianime.to/watch/erased-120" },
+      { name: "Death Parade", img: "https://upload.wikimedia.org/wikipedia/en/8/8e/Death_parade_visual.jpg", link: "https://hianime.to/watch/death-parade-227" },
+      { name: "The Promised Neverland", img: "https://upload.wikimedia.org/wikipedia/en/7/79/Promised_Neverland.jpg", link: "https://hianime.to/watch/the-promised-neverland-2120" },
+      { name: "Higurashi: When They Cry", img: "https://upload.wikimedia.org/wikipedia/en/8/8d/Higurashi_cover.jpg", link: "https://hianime.to/watch/higurashi-when-they-cry-497" },
+      { name: "Hellsing Ultimate", img: "https://upload.wikimedia.org/wikipedia/en/4/49/HellsingUltimate.jpg", link: "https://hianime.to/watch/hellsing-ultimate-105" },
+      { name: "Another", img: "https://upload.wikimedia.org/wikipedia/en/4/45/Another_novel_cover.jpg", link: "https://hianime.to/watch/another-125" },
+      { name: "Durarara!!", img: "https://upload.wikimedia.org/wikipedia/en/2/21/Durarara_visual.jpg", link: "https://hianime.to/watch/durarara-10" },
+
+      // Sci-fi / mecha
+      { name: "Steins;Gate 0", img: "https://upload.wikimedia.org/wikipedia/en/6/6d/Steins%3BGate_0_visual.jpg", link: "https://hianime.to/watch/steinsgate-0-178" },
+      { name: "Psycho-Pass 2", img: "https://upload.wikimedia.org/wikipedia/en/9/98/Psycho-Pass_key_visual.jpg", link: "https://hianime.to/watch/psycho-pass-2-323" },
+      { name: "Code Geass R2", img: "https://upload.wikimedia.org/wikipedia/en/9/9e/Code_Geass_R2_DVD_1.jpg", link: "https://hianime.to/watch/code-geass-lelouch-of-the-rebellion-r2-158" },
+      { name: "A Certain Scientific Railgun", img: "https://upload.wikimedia.org/wikipedia/en/2/2c/A_Certain_Scientific_Railgun_manga_volume_1_cover.jpg", link: "https://hianime.to/watch/a-certain-scientific-railgun-227" },
+      { name: "A Certain Magical Index", img: "https://upload.wikimedia.org/wikipedia/en/0/06/Toaru_Majutsu_no_Index_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/a-certain-magical-index-150" },
+      { name: "Neon Genesis Evangelion: The End of Evangelion", img: "https://upload.wikimedia.org/wikipedia/en/0/06/The_End_of_Evangelion_poster.jpg", link: "https://hianime.to/watch/the-end-of-evangelion-182" },
+      { name: "Ghost in the Shell: Stand Alone Complex", img: "https://upload.wikimedia.org/wikipedia/en/f/f9/Ghost_in_the_Shell_SAC.jpg", link: "https://hianime.to/watch/ghost-in-the-shell-sac-64" },
+
+      // Classics / older gems
+      { name: "Great Teacher Onizuka", img: "https://upload.wikimedia.org/wikipedia/en/7/7f/GTO.jpg", link: "https://hianime.to/watch/great-teacher-onizuka-23" },
+      { name: "Berserk (1997)", img: "https://upload.wikimedia.org/wikipedia/en/0/0c/Berserk_Volume_1.jpg", link: "https://hianime.to/watch/berserk-8" },
+      { name: "FLCL (Fooly Cooly)", img: "https://upload.wikimedia.org/wikipedia/en/1/15/FLCL_cover.jpg", link: "https://hianime.to/watch/flcl-51" },
+      { name: "Nana", img: "https://upload.wikimedia.org/wikipedia/en/5/5f/Nana_cover.jpg", link: "https://hianime.to/watch/nana-43" },
+      { name: "Sailor Moon", img: "https://upload.wikimedia.org/wikipedia/en/d/d0/Sailor_Moon_Volume_1.jpg", link: "https://hianime.to/watch/sailor-moon-29" },
+      { name: "Rurouni Kenshin (Samurai X)", img: "https://upload.wikimedia.org/wikipedia/en/2/2d/Rurouni_Kenshin_volume_1.jpg", link: "https://hianime.to/watch/rurouni-kenshin-370" },
+      { name: "Inuyasha", img: "https://upload.wikimedia.org/wikipedia/en/f/fc/InuYasha_vol_1.jpg", link: "https://hianime.to/watch/inuyasha-15" },
+      { name: "Yu-Gi-Oh!", img: "https://upload.wikimedia.org/wikipedia/en/4/4a/Yu-Gi-Oh%21_Duel_Monsters.jpg", link: "https://hianime.to/watch/yu-gi-oh-duel-monsters-4" },
+      { name: "Pokémon", img: "https://upload.wikimedia.org/wikipedia/en/1/17/Pok%C3%A9mon_season_1.jpg", link: "https://hianime.to/watch/pokemon-387" },
+      { name: "Digimon Adventure", img: "https://upload.wikimedia.org/wikipedia/en/6/6f/Digimon_Adventure.jpg", link: "https://hianime.to/watch/digimon-adventure-30" },
+
+      // More fan favorites
+      { name: "The Devil is a Part-Timer!", img: "https://upload.wikimedia.org/wikipedia/en/3/38/Devil_is_a_part-timer_key_visual.png", link: "https://hianime.to/watch/the-devil-is-a-part-timer-269" },
+      { name: "Katekyo Hitman Reborn!", img: "https://upload.wikimedia.org/wikipedia/en/7/70/Katekyo_hitman_reborn_cover.jpg", link: "https://hianime.to/watch/katekyo-hitman-reborn-87" },
+      { name: "Little Witch Academia", img: "https://upload.wikimedia.org/wikipedia/en/3/35/Little_Witch_Academia.jpg", link: "https://hianime.to/watch/little-witch-academia-1128" },
+      { name: "Miss Kobayashi's Dragon Maid", img: "https://upload.wikimedia.org/wikipedia/en/9/96/Miss_Kobayashi%27s_Dragon_Maid_key_visual.png", link: "https://hianime.to/watch/miss-kobayashis-dragon-maid-1901" },
+      { name: "Bungo Stray Dogs", img: "https://upload.wikimedia.org/wikipedia/en/c/c1/Bung%C5%8D_Stray_Dogs_vol_1_cover.jpg", link: "https://hianime.to/watch/bungo-stray-dogs-180" },
+      { name: "Tokyo Revengers", img: "https://upload.wikimedia.org/wikipedia/en/0/0d/Tokyo_Revengers_volume_1.jpg", link: "https://hianime.to/watch/tokyo-revengers-15585" },
+      { name: "The Quintessential Quintuplets", img: "https://upload.wikimedia.org/wikipedia/en/2/2a/The_Quintessential_Quintuplets_volume_1.jpg", link: "https://hianime.to/watch/the-quintessential-quintuplets-357" },
+      { name: "Rent-A-Girlfriend", img: "https://upload.wikimedia.org/wikipedia/en/8/8a/Rent-A-Girlfriend_volume_1.jpg", link: "https://hianime.to/watch/rent-a-girlfriend-15561" },
+      { name: "The Ancient Magus' Bride", img: "https://upload.wikimedia.org/wikipedia/en/b/b4/The_Ancient_Magus%27_Bride_volume_1_cover.jpg", link: "https://hianime.to/watch/the-ancient-magus-bride-705" },
+      { name: "Darling in the Franxx", img: "https://upload.wikimedia.org/wikipedia/en/7/7b/Darling_in_the_Franxx_promotional_image.jpg", link: "https://hianime.to/watch/darling-in-the-franxx-250" },
+      { name: "Kill la Kill", img: "https://upload.wikimedia.org/wikipedia/en/2/26/Kill_la_Kill_key_visual.jpg", link: "https://hianime.to/watch/kill-la-kill-183" },
+      { name: "The Dangers in My Heart", img: "https://upload.wikimedia.org/wikipedia/en/8/8b/Boku_no_Kokoro_no_Yabai_Yatsu_volume_1_cover.jpg", link: "https://hianime.to/watch/the-dangers-in-my-heart-18674" },
+
+      // Isekai & adventure (more)
+      { name: "Log Horizon", img: "https://upload.wikimedia.org/wikipedia/en/a/ae/Log_Horizon_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/log-horizon-115" },
+      { name: "Grimgar of Fantasy and Ash", img: "https://upload.wikimedia.org/wikipedia/en/e/ee/Grimgar_of_Fantasy_and_Ash_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/grimgar-ash-and-illusions-192" },
+      { name: "The Faraway Paladin", img: "https://upload.wikimedia.org/wikipedia/en/4/4c/The_Faraway_Paladin_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/the-faraway-paladin-17843" },
+      { name: "Jobless Reincarnation II", img: "https://upload.wikimedia.org/wikipedia/en/5/58/Mushoku_Tensei_key_visual.jpg", link: "https://hianime.to/watch/mushoku-tensei-jobless-reincarnation-season-2-18612" },
+
+      // Comedy / school
+      { name: "Saiki Kusuo no Psi-nan (The Disastrous Life of Saiki K.)", img: "https://upload.wikimedia.org/wikipedia/en/0/0b/Saiki_Kusuo_no_Psi-nan%2C_volume_1.jpg", link: "https://hianime.to/watch/saiki-kusuo-no-psi-nan-776" },
+      { name: "Nichijou", img: "https://upload.wikimedia.org/wikipedia/en/7/78/Nichijou_Volume_1.jpg", link: "https://hianime.to/watch/nichijou-107" },
+      { name: "Grand Blue Dreaming", img: "https://upload.wikimedia.org/wikipedia/en/6/66/Grand_Blue_Dreaming_volume_1.jpg", link: "https://hianime.to/watch/grand-blue-1977" },
+      { name: "School Rumble", img: "https://upload.wikimedia.org/wikipedia/en/7/7e/School_Rumble_volume_1.jpg", link: "https://hianime.to/watch/school-rumble-275" },
+
+      // Movies & specials
+      { name: "Spirited Away", img: "https://upload.wikimedia.org/wikipedia/en/d/db/Spirited_Away_poster.JPG", link: "https://hianime.to/watch/spirited-away-532" },
+      { name: "Princess Mononoke", img: "https://upload.wikimedia.org/wikipedia/en/8/8e/Princess_Mononoke_Japanese_poster.png", link: "https://hianime.to/watch/princess-mononoke-568" },
+      { name: "Howl's Moving Castle", img: "https://upload.wikimedia.org/wikipedia/en/a/a0/Howls-moving-castleposter.jpg", link: "https://hianime.to/watch/howls-moving-castle-561" },
+      { name: "Weathering With You", img: "https://upload.wikimedia.org/wikipedia/en/7/76/Weathering_with_You_Poster.jpg", link: "https://hianime.to/watch/weathering-with-you-2019-1844" },
+      { name: "The Garden of Words", img: "https://upload.wikimedia.org/wikipedia/en/0/08/The_Garden_of_Words_poster.png", link: "https://hianime.to/watch/the-garden-of-words-491" },
+
+      // More (to ensure 100+)
+      { name: "Baccano!", img: "https://upload.wikimedia.org/wikipedia/en/3/38/Baccano%21_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/baccano-225" },
+      { name: "Bakemonogatari", img: "https://upload.wikimedia.org/wikipedia/en/1/14/Bakemonogatari_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/bakemonogatari-508" },
+      { name: "Monogatari Series: Second Season", img: "https://upload.wikimedia.org/wikipedia/en/5/5f/Monogatari_Series_Second_Season_logo.png", link: "https://hianime.to/watch/monogatari-series-second-season-115" },
+      { name: "March Comes in Like a Lion", img: "https://upload.wikimedia.org/wikipedia/en/f/f0/March_Comes_in_Like_a_Lion_manga_volume_1_cover.jpg", link: "https://hianime.to/watch/march-comes-in-like-a-lion-121" },
+      { name: "Barakamon", img: "https://upload.wikimedia.org/wikipedia/en/f/f6/Barakamon_volume_1.jpg", link: "https://hianime.to/watch/barakamon-66" },
+      { name: "Natsume's Book of Friends", img: "https://upload.wikimedia.org/wikipedia/en/b/b1/Natsume%27s_Book_of_Friends_Vol_1.jpg", link: "https://hianime.to/watch/natsume-yuujinchou-188" },
+      { name: "Planetes", img: "https://upload.wikimedia.org/wikipedia/en/f/f2/Planetes_manga_vol1.jpg", link: "https://hianime.to/watch/planetes-291" },
+      { name: "Paranoia Agent", img: "https://upload.wikimedia.org/wikipedia/en/e/e6/Paranoia_Agent_DVD_1.jpg", link: "https://hianime.to/watch/paranoia-agent-104" },
+      { name: "Texhnolyze", img: "https://upload.wikimedia.org/wikipedia/en/4/47/Texhnolyze_DVD1.jpg", link: "https://hianime.to/watch/texhnolyze-205" },
+      { name: "Ergo Proxy", img: "https://upload.wikimedia.org/wikipedia/en/6/62/Ergo_Proxy_DVD1.jpg", link: "https://hianime.to/watch/ergo-proxy-112" },
+      { name: "Afro Samurai", img: "https://upload.wikimedia.org/wikipedia/en/9/9f/Afro_Samurai_Resurrection.jpg", link: "https://hianime.to/watch/afro-samurai-73" },
+      { name: "Hyouka", img: "https://upload.wikimedia.org/wikipedia/en/1/12/Hyouka_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/hyouka-121" },
+      { name: "Toriko", img: "https://upload.wikimedia.org/wikipedia/en/6/6f/Toriko_volume_1.jpg", link: "https://hianime.to/watch/toriko-88" },
+      { name: "Assassination Classroom", img: "https://upload.wikimedia.org/wikipedia/en/5/5f/Assassination_Classroom_volume_1.jpg", link: "https://hianime.to/watch/assassination-classroom-289" },
+      { name: "The Melancholy of Haruhi Suzumiya", img: "https://upload.wikimedia.org/wikipedia/en/e/e0/Haruhi_Suzumiya_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/the-melancholy-of-haruhi-suzumiya-25" },
+      { name: "Angel Beats!", img: "https://upload.wikimedia.org/wikipedia/en/6/6a/Angel_Beats%21_Key_Visual.jpg", link: "https://hianime.to/watch/angel-beats-72" },
+      { name: "Toradora! (Recap Movie)", img: "https://upload.wikimedia.org/wikipedia/en/5/55/Toradora_v1.jpg", link: "https://hianime.to" },
+      { name: "Oregairu (My Teen Romantic Comedy SNAFU)", img: "https://upload.wikimedia.org/wikipedia/en/b/b0/My_Teen_Romantic_Comedy_SNAFU_light_novel_volume_1_cover.jpg", link: "https://hianime.to/watch/my-teen-romantic-comedy-snafu-178" },
+      { name: "The Monogatari Series: Owarimonogatari", img: "https://upload.wikimedia.org/wikipedia/en/a/ab/Owarimonogatari_light_novel_volume_1.jpg", link: "https://hianime.to/watch/owarimonogatari-344" },
+      { name: "Zom 100: Bucket List of the Dead", img: "https://upload.wikimedia.org/wikipedia/en/4/4b/Zom_100_volume_1_cover.jpg", link: "https://hianime.to/watch/zom-100-bucket-list-of-the-dead-18458" }
+    ];
+
+    const listEl = document.getElementById("anime-list");
+    const searchEl = document.getElementById("search");
+    const sortEl = document.getElementById("sort");
+    const noResultsEl = document.getElementById("no-results");
+
+    function render(items) {
+      listEl.innerHTML = "";
+      if (items.length === 0) {
+        noResultsEl.classList.remove("hidden");
+        return;
+      } else {
+        noResultsEl.classList.add("hidden");
+      }
+
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "anime-card bg-gray-900 rounded-lg overflow-hidden";
+        card.innerHTML = `
+          <a href="${item.link}" target="_blank" rel="noopener">
+            <img src="${item.img}" alt="${escapeHtml(item.name)}" class="w-full h-48 object-cover" loading="lazy">
+            <div class="p-3 text-center font-semibold text-sm line-clamp-2">${escapeHtml(item.name)}</div>
+          </a>
+        `;
+        listEl.appendChild(card);
+      });
+    }
+
+    function escapeHtml(t){ return t ? t.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') : ''; }
+
+    function filterAndSort() {
+      let filtered = animes.filter(a => a.name.toLowerCase().includes(searchEl.value.toLowerCase()));
+      if (sortEl.value === "az") filtered.sort((a,b)=>a.name.localeCompare(b.name));
+      if (sortEl.value === "za") filtered.sort((a,b)=>b.name.localeCompare(a.name));
+      render(filtered);
+    }
+
+    searchEl.addEventListener("input", filterAndSort);
+    sortEl.addEventListener("change", filterAndSort);
+
+    // Upload: add a playable video card at the top (local-only)
+    document.getElementById("upload").addEventListener("change", e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const videoCard = document.createElement("div");
+      videoCard.className = "anime-card bg-gray-900 rounded-lg overflow-hidden col-span-2 sm:col-span-3 md:col-span-4 lg:col-span-5";
+      videoCard.innerHTML = `
+        <video controls class="w-full h-auto">
+          <source src="${url}" type="${file.type}">
+        </video>
+        <div class="p-3 text-center font-semibold text-sm">${escapeHtml(file.name)}</div>
+      `;
+      listEl.prepend(videoCard);
+      e.target.value = "";
+    });
+
+    // Initial render
+    filterAndSort();
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MT7 Anime Hub — Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(135deg,#039741,#6d0505); font-family: Inter, system-ui; }
+    .anime-card { transition: transform .25s, box-shadow .25s; }
+    .anime-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,.6); }
+    nav a { padding: .5rem 1rem; border-radius:.5rem; font-weight:600; }
+    nav a:hover { background:#222; }
+  </style>
+</head>
+<body class="text-white min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-black/40 backdrop-blur-sm sticky top-0 z-50 p-4 flex justify-center gap-4">
+    <a href="index.html" class="text-pink-400">🏠 Home</a>
+    <a href="anime.html">📺 Anime List</a>
+    <a href="about.html">ℹ️ About</a>
+    <a href="contact.html">📬 Contact</a>
+  </nav>
+
+  <!-- Hero -->
+  <header class="p-10 text-center">
+    <h1 class="text-4xl font-extrabold text-pink-400">Welcome to MT7 Anime Hub</h1>
+    <p class="text-gray-200 mt-2">Watch, explore & discover 100+ anime with posters and HiAnime links.</p>
+    <a href="anime.html" class="mt-4 inline-block bg-indigo-600 px-6 py-3 rounded-lg font-semibold">👉 Browse Anime</a>
+  </header>
+
+  <!-- Featured Section -->
+  <section class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 p-6">
+    <div class="anime-card bg-gray-900 rounded-lg overflow-hidden">
+      <a href="https://hianime.to/watch/demon-slayer-kimetsu-no-yaiba-1893" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/1/1a/Demon_Slayer_Season_1.jpg" alt="Demon Slayer" class="w-full h-48 object-cover" loading="lazy">
+        <div class="p-3 text-center font-semibold">Demon Slayer</div>
+      </a>
+    </div>
+    <div class="anime-card bg-gray-900 rounded-lg overflow-hidden">
+      <a href="https://hianime.to/watch/naruto-20" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/9/94/NarutoCoverTankobon1.jpg" alt="Naruto" class="w-full h-48 object-cover" loading="lazy">
+        <div class="p-3 text-center font-semibold">Naruto</div>
+      </a>
+    </div>
+    <div class="anime-card bg-gray-900 rounded-lg overflow-hidden">
+      <a href="https://hianime.to/watch/attack-on-titan-112" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/7/70/Shingeki_no_Kyojin_manga_volume_1.jpg" alt="Attack on Titan" class="w-full h-48 object-cover" loading="lazy">
+        <div class="p-3 text-center font-semibold">Attack on Titan</div>
+      </a>
+    </div>
+    <div class="anime-card bg-gray-900 rounded-lg overflow-hidden">
+      <a href="https://hianime.to/watch/death-note-60" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/6/6f/Death_Note_Vol_1.jpg" alt="Death Note" class="w-full h-48 object-cover" loading="lazy">
+        <div class="p-3 text-center font-semibold">Death Note</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center text-gray-400 p-6">© 2025 MT7 Anime Hub | <a href="https://instagram.com/rajpootmt7" target="_blank" class="text-pink-400">Instagram</a></footer>
+</body>
+</html>
